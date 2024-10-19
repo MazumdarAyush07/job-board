@@ -13,10 +13,10 @@ const router = Router();
 router.use(verifyJWT);
 
 // Route to create a new job (JWT required)
-router.route("/create").post(verifyJWT, createJob);
+router.route("/create").post(verifyJWT, createJob); //tested successfully
 
 // Route to get all jobs
-router.route("/").get(getAllJobs);
+router.route("/").get(getAllJobs); //tested successfully
 
 // Route to get a job by its ID
 router.route("/:jobId").get(getJobById);

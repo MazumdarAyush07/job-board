@@ -120,6 +120,12 @@ const loginUser = asyncHandler(async (req, res) => {
     return res.status(401).json(new ApiResponse(401, {}, "Wrong credentials"));
   }
 
+  if (user.isVerified.email === false || user.isVerified.phone === false) {
+    return res
+      .status(401)
+      .json(new ApiResponse(401, {}, "User is not verified"));
+  }
+
   const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
     user._id
   );
