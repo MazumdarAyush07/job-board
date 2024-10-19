@@ -239,6 +239,7 @@ const registerUser = asyncHandler(async (req, res) => {
   );
   const tokens = await generateAccessAndRefreshTokens(createdUser._id);
   const refreshToken = tokens?.refreshToken;
+  const accessToken = tokens?.accessToken;
   const user = await User.findByIdAndUpdate(
     newUser._id,
     {
@@ -262,7 +263,7 @@ const registerUser = asyncHandler(async (req, res) => {
     .json(
       new ApiResponse(
         201,
-        { user, refreshToken },
+        { user, refreshToken, accessToken },
         "User registered successfully. Please verify your email."
       )
     );

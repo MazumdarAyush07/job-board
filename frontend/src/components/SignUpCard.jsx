@@ -40,11 +40,12 @@ const SignUpCard = () => {
       );
 
       if (response.status === 201) {
-        const { user, refreshToken } = response.data.data;
+        const { user, refreshToken, accessToken } = response.data.data;
 
         // Store tokens in localStorage
         localStorage.setItem("user", JSON.stringify(user));
         localStorage.setItem("refreshToken", refreshToken);
+        localStorage.setItem("accessToken", accessToken);
 
         // Set success message
         setMessage(response.data.message);
