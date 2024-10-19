@@ -11,10 +11,6 @@ The Job Posting Board is a full-stack application built using the MERN stack (Mo
 - [Technical Requirements](#technical-requirements)
 - [Tech Stack](#tech-stack)
 - [Installation](#installation)
-- [Usage](#usage)
-- [API Endpoints](#api-endpoints)
-- [License](#license)
-
 ## Objective
 
 Design and implement a full-stack job posting board where companies can:
