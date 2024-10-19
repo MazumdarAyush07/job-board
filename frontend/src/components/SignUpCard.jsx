@@ -1,6 +1,68 @@
-import React from "react";
+import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const SignUpCard = () => {
+  const [formData, setFormData] = useState({
+    fullName: "",
+    phone: "",
+    companyName: "",
+    email: "",
+    employeeSize: "",
+    password: "",
+  });
+
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [isRegistering, setIsRegistering] = useState(false); // State for button text
+  const navigate = useNavigate(); // To navigate to different pages
+
+  // Handle form inputs
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.id]: e.target.value,
+    });
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setMessage("");
+    setIsRegistering(true); // Set registering state to true
+
+    try {
+      // Sending form data to the backend
+      const response = await axios.post(
+        "https://job-board-o9en.onrender.com/api/v1/users/register",
+        formData
+      );
+
+      if (response.status === 201) {
+        const { user, refreshToken } = response.data.data;
+
+        // Store tokens in localStorage
+        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("refreshToken", refreshToken);
+
+        // Set success message
+        setMessage(response.data.message);
+
+        // Redirect to /verify page
+        navigate("/verify");
+      }
+    } catch (error) {
+      if (error.response) {
+        setError(error.response.data.message || "Registration failed");
+      } else {
+        setError("An unexpected error occurred");
+      }
+    } finally {
+      setIsRegistering(false); // Reset registering state
+    }
+  };
+
   return (
     <div className="flex justify-center items-center min-h-screen">
       <div className="bg-white p-8 rounded-lg shadow-lg max-w-sm w-full border border-blue-600">
@@ -9,21 +71,28 @@ const SignUpCard = () => {
           Lorem Ipsum is simply dummy text
         </p>
 
-        <form>
-          {/* Name Input */}
+        {/* Display success or error messages */}
+        {message && <p className="text-green-500 text-center">{message}</p>}
+        {error && <p className="text-red-500 text-center">{error}</p>}
+
+        <form onSubmit={handleSubmit}>
+          {/* Full Name Input */}
           <div className="mb-4">
-            <label className="sr-only" htmlFor="name">
-              Name
+            <label className="sr-only" htmlFor="fullName">
+              Full Name
             </label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
                 <i className="fas fa-user"></i>
               </span>
               <input
-                id="name"
+                id="fullName"
                 type="text"
                 className="block w-full pl-10 py-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300"
-                placeholder="Name"
+                placeholder="Full Name"
+                value={formData.fullName}
+                onChange={handleChange}
+                required
               />
             </div>
           </div>
@@ -42,6 +111,9 @@ const SignUpCard = () => {
                 type="tel"
                 className="block w-full pl-10 py-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300"
                 placeholder="Phone no."
+                value={formData.phone}
+                onChange={handleChange}
+                required
               />
             </div>
           </div>
@@ -60,6 +132,9 @@ const SignUpCard = () => {
                 type="text"
                 className="block w-full pl-10 py-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300"
                 placeholder="Company Name"
+                value={formData.companyName}
+                onChange={handleChange}
+                required
               />
             </div>
           </div>
@@ -78,6 +153,9 @@ const SignUpCard = () => {
                 type="email"
                 className="block w-full pl-10 py-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300"
                 placeholder="Company Email"
+                value={formData.email}
+                onChange={handleChange}
+                required
               />
             </div>
           </div>
@@ -96,6 +174,9 @@ const SignUpCard = () => {
                 type="number"
                 className="block w-full pl-10 py-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300"
                 placeholder="Employee Size"
+                value={formData.employeeSize}
+                onChange={handleChange}
+                required
               />
             </div>
           </div>
@@ -114,6 +195,9 @@ const SignUpCard = () => {
                 type="password"
                 className="block w-full pl-10 py-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300"
                 placeholder="Password"
+                value={formData.password}
+                onChange={handleChange}
+                required
               />
             </div>
           </div>
@@ -130,8 +214,9 @@ const SignUpCard = () => {
           <button
             type="submit"
             className="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700"
+            disabled={isRegistering} // Disable the button while registering
           >
-            Proceed
+            {isRegistering ? "Registering..." : "Proceed"}
           </button>
         </form>
       </div>
