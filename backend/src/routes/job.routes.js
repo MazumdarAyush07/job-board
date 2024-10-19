@@ -16,7 +16,7 @@ router.use(verifyJWT);
 router.route("/create").post(createJob); //tested successfully
 
 // Route to get all jobs
-router.route("/").get(getAllJobs); //tested successfully
+router.route("/getAllJobs/:loggedInUser").get(getAllJobs); //tested successfully
 
 // Route to get a job by its ID
 router.route("/:jobId").get(getJobById);
