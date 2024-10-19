@@ -237,11 +237,11 @@ const registerUser = asyncHandler(async (req, res) => {
   const newUser = await User.findById(createdUser._id).select(
     "-password -emailOTP -mobileOTP"
   );
-  const refreshToken = await generateAccessAndRefreshTokens(createdUser._id);
+  const tokens = await generateAccessAndRefreshTokens(createdUser._id);
   const user = await User.findByIdAndUpdate(
     newUser._id,
     {
-      $set: { refreshToken },
+      $set: { refreshToken: tokens?.refreshToken },
     },
     { new: true }
   );
