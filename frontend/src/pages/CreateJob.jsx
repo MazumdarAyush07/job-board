@@ -101,12 +101,14 @@ const CreateJob = () => {
 
   // Fetch jobs from the backend
   const fetchJobs = async () => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    const loggedInUser = user ? user._id : null;
     const accessToken = localStorage.getItem("accessToken");
     if (!accessToken) return;
 
     try {
       const response = await axios.get(
-        "https://job-board-o9en.onrender.com/api/v1/jobs",
+        `https://job-board-o9en.onrender.com/api/v1/jobs/getAllJobs/${loggedInUser}`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,

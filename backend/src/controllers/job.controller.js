@@ -95,8 +95,9 @@ const createJob = asyncHandler(async (req, res) => {
 // Get all Jobs
 const getAllJobs = asyncHandler(async (req, res) => {
   const loggedInUser = req.params;
+  console.log(loggedInUser);
   const jobs = await Job.find({
-    companyId: new mongoose.Types.ObjectId(loggedInUser),
+    companyId: new mongoose.Types.ObjectId(loggedInUser.loggedInUser),
   }).populate("companyId");
 
   if (!jobs.length) {
