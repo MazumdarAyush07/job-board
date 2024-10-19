@@ -13,7 +13,7 @@ function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/verify" element={<Verify />} />
           <Route path="/createJob" element={<CreateJob />} />
-
+          <Route path="/" element={<CreateJob />} />
           {/* You can add more routes here as needed */}
         </Routes>
       </div>

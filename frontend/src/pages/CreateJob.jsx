@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "@fortawesome/fontawesome-free/css/all.min.css";
-import axios from "axios"; // Add axios to handle API requests
+import axios from "axios";
 
 const CreateJob = () => {
   const [showForm, setShowForm] = useState(false);
@@ -10,9 +10,10 @@ const CreateJob = () => {
   const [jobDescription, setJobDescription] = useState("");
   const [experienceLevel, setExperienceLevel] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [loading, setLoading] = useState(false); // Loading state
-  const [error, setError] = useState(null); // Error state
-  const [success, setSuccess] = useState(false); // Success state
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+  const [jobs, setJobs] = useState([]); // State for storing jobs
 
   const handleCreateInterview = () => {
     if (showForm) {
@@ -36,7 +37,7 @@ const CreateJob = () => {
     if (e.key === "Enter" && emailInput.trim()) {
       e.preventDefault();
       if (validateEmail(emailInput)) {
-        setEmails((prevEmails) => [...prevEmails, emailInput.trim()]); // Correctly update emails
+        setEmails((prevEmails) => [...prevEmails, emailInput.trim()]);
         setEmailInput("");
       }
     }
@@ -57,10 +58,9 @@ const CreateJob = () => {
     setError(null);
     setSuccess(false);
 
-    // Retrieve companyId and token from localStorage
     const user = JSON.parse(localStorage.getItem("user"));
-    const companyId = user ? user._id : null; // Ensure _id exists
-    const accessToken = localStorage.getItem("accessToken"); // Retrieve the accessToken
+    const companyId = user ? user._id : null;
+    const accessToken = localStorage.getItem("accessToken");
 
     if (!companyId || !accessToken) {
       setLoading(false);
@@ -75,13 +75,13 @@ const CreateJob = () => {
       description: jobDescription,
       experienceLevel,
       endDate,
-      candidates: emails, // Include emails in the payload
-      companyId, // Dynamically set the companyId
+      candidates: emails,
+      companyId,
     };
 
     try {
-      const response = await axios.post(
-        "http://localhost:8000/api/v1/jobs/create",
+      await axios.post(
+        "https://job-board-o9en.onrender.com/api/v1/jobs/create",
         jobData,
         {
           headers: {
@@ -91,12 +91,38 @@ const CreateJob = () => {
       );
       setLoading(false);
       setSuccess(true);
-      setShowForm(false); // Optionally close the form
+      setShowForm(false);
+      fetchJobs(); // Fetch jobs after successful creation
     } catch (err) {
       setLoading(false);
       setError(err.response?.data?.message || "Failed to create the job");
     }
   };
+
+  // Fetch jobs from the backend
+  const fetchJobs = async () => {
+    const accessToken = localStorage.getItem("accessToken");
+    if (!accessToken) return;
+
+    try {
+      const response = await axios.get(
+        "https://job-board-o9en.onrender.com/api/v1/jobs",
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      setJobs(response.data.data); // Update jobs state with fetched data
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.message || "Failed to fetch jobs");
+    }
+  };
+
+  useEffect(() => {
+    fetchJobs(); // Fetch jobs on component mount
+  }, []);
 
   return (
     <div className="flex">
@@ -223,14 +249,68 @@ const CreateJob = () => {
           </div>
         )}
 
-        {!showForm && (
+        {/* {!showForm && (
           <div className="mt-8">
             <h2 className="text-2xl font-bold mb-4">Create a New Job</h2>
             <p className="text-gray-600">
               Here, you can create a new job by filling out the form below:
             </p>
           </div>
-        )}
+        )} */}
+
+        {/* Table to List All Jobs */}
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold mb-4">Job Listings</h2>
+          {loading ? (
+            <p>Loading jobs...</p>
+          ) : error ? (
+            <p className="text-red-500">{error}</p>
+          ) : (
+            <table className="min-w-full bg-white border border-gray-200">
+              <thead>
+                <tr>
+                  <th className="py-2 px-4 border-b text-center">Job Title</th>
+                  <th className="py-2 px-4 border-b text-center">
+                    Description
+                  </th>
+                  <th className="py-2 px-4 border-b text-center">
+                    Experience Level
+                  </th>
+                  <th className="py-2 px-4 border-b text-center">End Date</th>
+                  <th className="py-2 px-4 border-b text-center">Candidates</th>
+                </tr>
+              </thead>
+              <tbody>
+                {jobs.map((job) => (
+                  <tr key={job._id} className="hover:bg-gray-100">
+                    <td className="py-2 px-4 border-b text-center">
+                      {job.title}
+                    </td>
+                    <td className="py-2 px-4 border-b text-center">
+                      {job.description}
+                    </td>
+                    <td className="py-2 px-4 border-b text-center">
+                      {job.experienceLevel}
+                    </td>
+                    <td className="py-2 px-4 border-b text-center">
+                      {new Date(job.endDate).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </td>
+
+                    <td className="py-2 px-4 border-b">
+                      {job.candidates.map((candidate, index) => (
+                        <div key={index}>{candidate}</div>
+                      ))}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
     </div>
   );
