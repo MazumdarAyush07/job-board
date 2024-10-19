@@ -86,6 +86,38 @@ const otpCheckerEmail = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200), {}, "OTP verified successfully");
 });
 
+const otpCheckerMobile = asyncHandler(async (req, res) => {
+  const { phone, otp } = req.body;
+
+  if (!phone) {
+    return res.status(400).json(new ApiResponse(400, {}, "Email is required"));
+  }
+
+  if (!otp) {
+    return res.status(400).json(new ApiResponse(400, {}, "OTP is required"));
+  }
+
+  const user = await User.findOne({ phone });
+
+  if (!user) {
+    return res
+      .status(404)
+      .json(new ApiResponse(404, {}, "User does not exist"));
+  }
+
+  if (otp !== user.mobileOTP) {
+    return res.status(400).json(new ApiResponse(400, {}, "Invalid OTP"));
+  }
+
+  user.mobileOTP = undefined;
+  user.isVerified.phone = true;
+  await user.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200), {}, "OTP verified successfully");
+});
+
 const loginUser = asyncHandler(async (req, res) => {
   const { identifier, password } = req.body; // Changed 'email' to 'identifier'
 
@@ -202,7 +234,17 @@ const registerUser = asyncHandler(async (req, res) => {
     mobileOTP: generateOTP(),
   });
 
-  const newUser = await User.findById(createdUser._id).select("-password");
+  const newUser = await User.findById(createdUser._id).select(
+    "-password -emailOTP -mobileOTP"
+  );
+  const refreshToken = await generateAccessAndRefreshTokens(createdUser._id);
+  const user = await User.findByIdAndUpdate(
+    newUser._id,
+    {
+      $set: { refreshToken },
+    },
+    { new: true }
+  );
 
   if (!newUser) {
     return res
@@ -212,13 +254,14 @@ const registerUser = asyncHandler(async (req, res) => {
 
   // Send OTP email to verify the user's email
   await sendOTPByEmail(createdUser.email, createdUser.emailOTP);
+  await sendOTPByEmail(createdUser.email, createdUser.mobileOTP);
 
   return res
     .status(201)
     .json(
       new ApiResponse(
         201,
-        newUser,
+        { user, refreshToken },
         "User registered successfully. Please verify your email."
       )
     );
@@ -265,4 +308,11 @@ const getUserById = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, user, "User fetched successfully"));
 });
 
-export { registerUser, loginUser, logout, getUserById, otpCheckerEmail };
+export {
+  registerUser,
+  loginUser,
+  logout,
+  getUserById,
+  otpCheckerEmail,
+  otpCheckerMobile,
+};

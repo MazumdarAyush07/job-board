@@ -5,6 +5,7 @@ import {
   logout,
   getUserById,
   otpCheckerEmail,
+  otpCheckerMobile,
 } from "../controllers/user.controller.js";
 
 import { verifyJWT } from "../middlewares/auth.middleware.js"; // Middleware for JWT verification
@@ -18,7 +19,9 @@ router.route("/register").post(registerUser); // Route to register a new user - 
 router.route("/login").post(loginUser); // Route for logging in a user - tested successfully
 
 // OTP verification route
-router.route("/verify-otp").post(otpCheckerEmail); // Route for checking the OTP sent to user's - tested successfully
+router.route("/verify-otp-email").post(otpCheckerEmail); // Route for checking the OTP sent to user's - tested successfully
+
+router.route("/verify-otp-mobile").post(otpCheckerMobile); // Route for checking the OTP sent to user's - tested successfully
 
 // User logout route
 router.route("/logout").post(verifyJWT, logout); // Route for logging out a user (JWT required) - tested successfuly
