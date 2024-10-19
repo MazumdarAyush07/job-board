@@ -95,7 +95,7 @@ const VerifyCard = () => {
               </span>
             )}
           </div>
-          {!emailVerified ? (
+          {!emailVerified && (
             <button
               className="mt-2 w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700"
               onClick={verifyEmailOTP}
@@ -103,10 +103,6 @@ const VerifyCard = () => {
             >
               Verify
             </button>
-          ) : (
-            <p className="mt-2 text-green-500 font-semibold text-center">
-              OTP Verified successfully
-            </p>
           )}
         </div>
 
@@ -136,7 +132,7 @@ const VerifyCard = () => {
               </span>
             )}
           </div>
-          {!mobileVerified ? (
+          {!mobileVerified && (
             <button
               className="mt-2 w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700"
               onClick={verifyMobileOTP}
@@ -144,10 +140,6 @@ const VerifyCard = () => {
             >
               Verify
             </button>
-          ) : (
-            <p className="mt-2 text-green-500 font-semibold text-center">
-              OTP Verified successfully
-            </p>
           )}
         </div>
       </div>
