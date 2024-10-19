@@ -57,7 +57,7 @@ const VerifyCard = () => {
   // Effect to navigate to the homepage once both OTPs are verified
   useEffect(() => {
     if (emailVerified && mobileVerified) {
-      navigate("/");
+      navigate("/createJob");
     }
   }, [emailVerified, mobileVerified, navigate]);
 
